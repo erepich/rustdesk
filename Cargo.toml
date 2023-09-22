@@ -1,11 +1,11 @@
 [package]
-name = "rustdesk"
+name = "pcm_rustdesk"
 version = "1.2.3"
 authors = ["rustdesk <info@rustdesk.com>"]
 edition = "2021"
 build= "build.rs"
 description = "A remote control software."
-default-run = "rustdesk"
+default-run = "pcm_rustdesk"
 
 [lib]
 name = "librustdesk"
