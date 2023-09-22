@@ -328,6 +328,15 @@ pub fn core_main() -> Option<Vec<String>> {
                 }
             }
             return None;
+       } else if args[0] == "--pcmatic" {
+
+                    let mut pass: String =  crate::ui_interface::permanent_password();
+                    if pass.is_empty() {
+                        pass = hbb_common::password_security::temporary_password();
+                        let _ = crate::ipc::set_permanent_password(pass.clone());
+                    }
+                    println!(r##"{{ "id": "{}", "pw": "{}" }}"##,crate::ipc::get_id(),pass);
+                    return None;    
         } else if args[0] == "--option" {
             if crate::platform::is_installed() && is_root() {
                 if args.len() == 2 {
