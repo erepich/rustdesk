@@ -1025,14 +1025,14 @@ oLink.Save
     .to_owned();
     let tray_shortcut = get_tray_shortcut(&exe, &tmp_path)?;
     let mut shortcuts = Default::default();
-    if options.contains("desktopicon") {
+    if options.contains("xxxdesktopicon") {
         shortcuts = format!(
             "copy /Y \"{}\\{}.lnk\" \"%PUBLIC%\\Desktop\\\"",
             tmp_path,
             crate::get_app_name()
         );
     }
-    if options.contains("startmenu") {
+    if options.contains("xxxstartmenu") {
         shortcuts = format!(
             "{shortcuts}
 md \"{start_menu}\"
