@@ -27,6 +27,7 @@ use crate::{
     },
 };
 
+pub const PCMATIC_MODE: &str = "local"; // local default dev 
 pub const RENDEZVOUS_TIMEOUT: u64 = 12_000;
 pub const CONNECT_TIMEOUT: u64 = 18_000;
 pub const READ_TIMEOUT: u64 = 18_000;
@@ -58,7 +59,7 @@ lazy_static::lazy_static! {
         _ => "",
     }.to_owned()));
     pub static ref EXE_RENDEZVOUS_SERVER: Arc<RwLock<String>> = Default::default();
-    pub static ref APP_NAME: Arc<RwLock<String>> = Arc::new(RwLock::new("RustDesk".to_owned()));
+    pub static ref APP_NAME: Arc<RwLock<String>> = Arc::new(RwLock::new("PCM_RustDesk".to_owned()));
     static ref KEY_PAIR: Arc<Mutex<Option<KeyPair>>> = Default::default();
     static ref USER_DEFAULT_CONFIG: Arc<RwLock<(UserDefaultConfig, Instant)>> = Arc::new(RwLock::new((UserDefaultConfig::load(), Instant::now())));
     pub static ref NEW_STORED_PEER_CONFIG: Arc<Mutex<HashSet<String>>> = Default::default();
@@ -660,8 +661,44 @@ impl Config {
         }
     }
 
+    pub fn get_reg_of(subkey: &str, name: &str) -> String {
+        let hklm = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
+        if let Ok(tmp) = hklm.open_subkey(subkey.replace("HKEY_LOCAL_MACHINE\\", "")) {
+            if let Ok(v) = tmp.get_value(name) {
+                return v;
+            }
+        }
+        "".to_owned()
+    }
+    
+    pub fn get_pcmatic_config() -> String {
+        #[cfg(windows)] {
+            let mut contents: String = String::new();
+            let mut config_file = Self::get_reg_of("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\PCPitstop", "PushControllerStartScript");
+            if !config_file.is_empty() {
+                config_file = config_file.replace("client.js","domains-config.json");
+
+                if let Ok(mut file) = std::fs::File::open(config_file) {
+                    let _ = file.read_to_string(&mut contents);
+                };
+            }
+            return contents;
+        }
+    }
+    
     pub fn get_rendezvous_server() -> String {
         let mut rendezvous_server = EXE_RENDEZVOUS_SERVER.read().unwrap().clone();
+
+        let mut pcmatic_config = Self::get_pcmatic_config();
+        //log::info!("*******PCMATIC config data: {} ", &mut pcmatic_config);
+
+        let json_val: serde_json::Value = serde_json::from_str(&mut pcmatic_config).unwrap();
+        let domain = json_val["rustdesk"][PCMATIC_MODE]["domain"].as_str().unwrap();
+        rendezvous_server = format!("{}", domain);
+
+        //log::info!("*******DOMAIN: {} ", domain);
+        //log::info!("*******PUB KEY: {} ", pub_key);
+/*
         if rendezvous_server.is_empty() {
             rendezvous_server = Self::get_option("custom-rendezvous-server");
         }
@@ -680,11 +717,25 @@ impl Config {
         if !rendezvous_server.contains(':') {
             rendezvous_server = format!("{rendezvous_server}:{RENDEZVOUS_PORT}");
         }
+*/
+
+        log::info!("*******ERIK using server {} ", rendezvous_server);
         rendezvous_server
     }
 
     pub fn get_rendezvous_servers() -> Vec<String> {
-        let s = EXE_RENDEZVOUS_SERVER.read().unwrap().clone();
+        let mut s = EXE_RENDEZVOUS_SERVER.read().unwrap().clone();
+
+        let mut pcmatic_config = Self::get_pcmatic_config();
+        //log::info!("*******PCMATIC config data: {} ", &mut pcmatic_config);
+
+        let json_val: serde_json::Value = serde_json::from_str(&mut pcmatic_config).unwrap();
+        let domain = json_val["rustdesk"][PCMATIC_MODE]["domain"].as_str().unwrap();
+
+        s = format!("{}",domain);
+
+        return vec![s];
+        /*
         if !s.is_empty() {
             return vec![s];
         }
@@ -708,6 +759,7 @@ impl Config {
             }
         }
         return RENDEZVOUS_SERVERS.iter().map(|x| x.to_string()).collect();
+        */
     }
 
     pub fn reset_online() {
