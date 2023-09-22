@@ -286,37 +286,6 @@ class _ConnectionPageState extends State<ConnectionPage>
                                 decoration: TextDecoration.underline,
                                 fontSize: em)))
                     .marginOnly(left: em),
-              ),
-              // ready && public
-              Flexible(
-                child: Offstage(
-                  offstage: !(!svcStopped.value &&
-                      stateGlobal.svcStatus.value == SvcStatus.ready &&
-                      svcIsUsingPublicServer.value),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(', ', style: TextStyle(fontSize: em)),
-                      Flexible(
-                        child: InkWell(
-                          onTap: onUsePublicServerGuide,
-                          child: Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  translate('setup_server_tip'),
-                                  style: TextStyle(
-                                      decoration: TextDecoration.underline,
-                                      fontSize: em),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
               )
             ],
           )),
@@ -324,7 +293,7 @@ class _ConnectionPageState extends State<ConnectionPage>
   }
 
   void onUsePublicServerGuide() {
-    const url = "https://rustdesk.com/blog/id-relay-set/";
+    const url = "https://pcmatic.com";
     canLaunchUrlString(url).then((can) {
       if (can) {
         launchUrlString(url);
