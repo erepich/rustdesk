@@ -662,11 +662,13 @@ impl Config {
     }
 
     pub fn get_reg_of(subkey: &str, name: &str) -> String {
+        #[cfg(windows)] {
         let hklm = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
         if let Ok(tmp) = hklm.open_subkey(subkey.replace("HKEY_LOCAL_MACHINE\\", "")) {
             if let Ok(v) = tmp.get_value(name) {
                 return v;
             }
+        }
         }
         "".to_owned()
     }
