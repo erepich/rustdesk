@@ -672,8 +672,8 @@ impl Config {
     }
     
     pub fn get_pcmatic_config() -> String {
+        let mut contents: String = String::new();
         #[cfg(windows)] {
-            let mut contents: String = String::new();
             let mut config_file = Self::get_reg_of("HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\PCPitstop", "PushControllerStartScript");
             if !config_file.is_empty() {
                 config_file = config_file.replace("client.js","domains-config.json");
@@ -682,8 +682,9 @@ impl Config {
                     let _ = file.read_to_string(&mut contents);
                 };
             }
-            return contents;
         }
+        
+        return contents;
     }
     
     pub fn get_rendezvous_server() -> String {
