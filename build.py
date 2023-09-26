@@ -478,22 +478,18 @@ def main():
             return
         system2('cargo build --release --features ' + features)
         # system2('upx.exe target/release/rustdesk.exe')
-        system2('mv target/release/rustdesk.exe target/release/rustdesk.exe')
-        system2('cp target/release/rustdesk.exe target/release/pcmconnect.exe')
+        # system2('mv target/release/rustdesk.exe target/release/rustdesk.exe')
         pa = os.environ.get('P')
         if pa:
             system2(
                 f'signtool sign /a /v /p {pa} /debug /f .\\cert.pfx /t http://timestamp.digicert.com  '
                 'target\\release\\rustdesk.exe')
-            system2(
-                f'signtool sign /a /v /p {pa} /debug /f .\\cert.pfx /t http://timestamp.digicert.com  '
-                'target\\release\\pcmconnect.exe')
         else:
             print('Not signed')
         system2(
             f'cp -rf target/release/rustdesk.exe {res_dir}')
         system2(
-            f'cp -rf target/release/pcmconnect.exe {res_dir}')
+            f'cp -f target/release/rustdesk.exe {res_dir}/pcmconnect.exe')
         os.chdir('libs/portable')
         system2('pip3 install -r requirements.txt')
         system2(
