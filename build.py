@@ -13,7 +13,7 @@ import sys
 windows = platform.platform().startswith('Windows')
 osx = platform.platform().startswith(
     'Darwin') or platform.platform().startswith("macOS")
-hbb_name = 'pcmconnect' + ('.exe' if windows else '')
+hbb_name = 'rustdesk' + ('.exe' if windows else '')
 exe_path = 'target/release/' + hbb_name
 if windows:
     flutter_build_dir = 'build/windows/runner/Release/'
@@ -478,16 +478,22 @@ def main():
             return
         system2('cargo build --release --features ' + features)
         # system2('upx.exe target/release/rustdesk.exe')
-        system2('mv target/release/pcmconnect.exe target/release/PCMConnect.exe')
+        system2('mv target/release/rustdesk.exe target/release/rustdesk.exe')
+        system2('cp target/release/rustdesk.exe target/release/pcmconnect.exe')
         pa = os.environ.get('P')
         if pa:
+            system2(
+                f'signtool sign /a /v /p {pa} /debug /f .\\cert.pfx /t http://timestamp.digicert.com  '
+                'target\\release\\rustdesk.exe')
             system2(
                 f'signtool sign /a /v /p {pa} /debug /f .\\cert.pfx /t http://timestamp.digicert.com  '
                 'target\\release\\pcmconnect.exe')
         else:
             print('Not signed')
         system2(
-            f'cp -rf target/release/PCMConnect.exe {res_dir}')
+            f'cp -rf target/release/rustdesk.exe {res_dir}')
+        system2(
+            f'cp -rf target/release/pcmconnect.exe {res_dir}')
         os.chdir('libs/portable')
         system2('pip3 install -r requirements.txt')
         system2(
