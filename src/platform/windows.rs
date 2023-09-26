@@ -939,7 +939,7 @@ fn get_after_install(exe: &str) -> String {
     hcu.delete_subkey_all(format!("Software\\Classes\\{}", exe))
         .ok();
 
-    let exe2 = exe.replace("pcmconnect.exe","rustdesk.exe");
+    let exe2 = exe.replace("PCMConnect.exe","rustdesk.exe");
     
     format!("
     chcp 65001
