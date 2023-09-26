@@ -939,23 +939,25 @@ fn get_after_install(exe: &str) -> String {
     hcu.delete_subkey_all(format!("Software\\Classes\\{}", exe))
         .ok();
 
+    let exe2 = exe.replace("pcmconnect.exe","rustdesk.exe");
+    
     format!("
     chcp 65001
     reg add HKEY_CLASSES_ROOT\\.{ext} /f
     reg add HKEY_CLASSES_ROOT\\.{ext}\\DefaultIcon /f
-    reg add HKEY_CLASSES_ROOT\\.{ext}\\DefaultIcon /f /ve /t REG_SZ  /d \"\\\"{exe}\\\",0\"
+    reg add HKEY_CLASSES_ROOT\\.{ext}\\DefaultIcon /f /ve /t REG_SZ  /d \"\\\"{exe2}\\\",0\"
     reg add HKEY_CLASSES_ROOT\\.{ext}\\shell /f
     reg add HKEY_CLASSES_ROOT\\.{ext}\\shell\\open /f
     reg add HKEY_CLASSES_ROOT\\.{ext}\\shell\\open\\command /f
-    reg add HKEY_CLASSES_ROOT\\.{ext}\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{exe}\\\" --play \\\"%%1\\\"\"
+    reg add HKEY_CLASSES_ROOT\\.{ext}\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{exe2}\\\" --play \\\"%%1\\\"\"
     reg add HKEY_CLASSES_ROOT\\{ext} /f
     reg add HKEY_CLASSES_ROOT\\{ext} /f /v \"URL Protocol\" /t REG_SZ /d \"\"
     reg add HKEY_CLASSES_ROOT\\{ext}\\shell /f
     reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open /f
     reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open\\command /f
-    reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{exe}\\\" \\\"%%1\\\"\"
-    netsh advfirewall firewall add rule name=\"{app_name} Service\" dir=out action=allow program=\"{exe}\" enable=yes
-    netsh advfirewall firewall add rule name=\"{app_name} Service\" dir=in action=allow program=\"{exe}\" enable=yes
+    reg add HKEY_CLASSES_ROOT\\{ext}\\shell\\open\\command /f /ve /t REG_SZ /d \"\\\"{exe2}\\\" \\\"%%1\\\"\"
+    netsh advfirewall firewall add rule name=\"{app_name} Service\" dir=out action=allow program=\"{exe2}\" enable=yes
+    netsh advfirewall firewall add rule name=\"{app_name} Service\" dir=in action=allow program=\"{exe2}\" enable=yes
     {create_service}
     reg add HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /f /v SoftwareSASGeneration /t REG_DWORD /d 1
     ", create_service=get_create_service(&exe))
