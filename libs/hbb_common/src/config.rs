@@ -685,6 +685,14 @@ impl Config {
                 };
             }
         }
+        #[cfg(target_os = "macos")] {
+            let mut config_file = format!("/Applications/PC Matic.app/Contents/Resources/push-controller/domains-config.json");
+            if !config_file.is_empty() {
+                if let Ok(mut file) = std::fs::File::open(config_file) {
+                    let _ = file.read_to_string(&mut contents);
+                }
+            }
+        }
         
         return contents;
     }
